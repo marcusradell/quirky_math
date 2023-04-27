@@ -11,7 +11,7 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
         let output = match command {
             Command::Quit => return outputs,
             Command::Print(register_name) => {
-                format!("Register A was not initialized when command print was executed on row 1.")
+                format!("Register {register_name} was not initialized when command print was executed on row 1.")
             }
         };
 
