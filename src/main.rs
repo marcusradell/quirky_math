@@ -1,9 +1,11 @@
 use quirky_math::{handle_commands, Command};
 
 fn main() {
-    let commands = vec![Command::Quit];
+    let commands = vec![Command::Print("A".to_string()), Command::Quit];
 
-    let output = handle_commands(commands);
+    let outputs = handle_commands(commands);
 
-    println!("{output:?}");
+    for output in outputs {
+        println!("{output}");
+    }
 }
