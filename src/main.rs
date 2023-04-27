@@ -4,6 +4,7 @@ fn main() {
     let commands = vec![
         Command::Add("A".to_string(), 1),
         Command::Print("A".to_string()),
+        Command::Print("B".to_string()),
         Command::Quit,
     ];
 
