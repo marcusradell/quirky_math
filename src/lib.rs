@@ -17,11 +17,11 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::handle_commands;
+    use crate::{handle_commands, Command};
 
     #[test]
     fn quit_command() {
-        let result = handle_commands(vec![]);
+        let result = handle_commands(vec![Command::Quit]);
 
         assert_eq!(result, Vec::<String>::new())
     }
