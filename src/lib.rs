@@ -11,19 +11,19 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
     let mut outputs = vec![];
     let mut registers: HashMap<String, usize> = HashMap::new();
 
-    for command in commands {
+    for (index, command) in commands.iter().enumerate() {
         match command {
             Command::Quit => return outputs,
             Command::Print(register_name) => {
                 let output = registers
-                .get(&register_name)
+                .get(register_name)
                 .map(|value| value.to_string())
-                .unwrap_or_else(|| format!("Register {register_name} was not initialized when command print was executed on row 1."));
+                .unwrap_or_else(|| format!("Register {register_name} was uninitialized when command PRINT with index {index} was executed."));
 
                 outputs.push(output);
             }
             Command::Add(register_name, value) => {
-                registers.insert(register_name, value);
+                registers.insert(register_name.clone(), *value);
             }
         };
     }
@@ -55,7 +55,7 @@ mod tests {
 
         assert_eq!(
             result,
-            vec!["Register A was not initialized when command print was executed on row 1."]
+            vec!["Register A was uninitialized when command PRINT with index 0 was executed."]
         )
     }
 
