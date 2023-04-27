@@ -1,21 +1,31 @@
+use std::collections::HashMap;
+
 #[derive(PartialEq)]
 pub enum Command {
     Quit,
     Print(String),
+    Add(String, usize),
 }
 
 pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
     let mut outputs = vec![];
+    let mut registers: HashMap<String, usize> = HashMap::new();
 
     for command in commands {
-        let output = match command {
+        match command {
             Command::Quit => return outputs,
             Command::Print(register_name) => {
-                format!("Register {register_name} was not initialized when command print was executed on row 1.")
+                let output = registers
+                .get(&register_name)
+                .map(|value| value.to_string())
+                .unwrap_or_else(|| format!("Register {register_name} was not initialized when command print was executed on row 1."));
+
+                outputs.push(output);
+            }
+            Command::Add(register_name, value) => {
+                registers.insert(register_name, value);
             }
         };
-
-        outputs.push(output)
     }
 
     outputs
@@ -47,5 +57,16 @@ mod tests {
             result,
             vec!["Register A was not initialized when command print was executed on row 1."]
         )
+    }
+
+    #[test]
+    fn a_add_1() {
+        let result = handle_commands(vec![
+            Command::Add("A".to_string(), 1),
+            Command::Print("A".to_string()),
+            Command::Quit,
+        ]);
+
+        assert_eq!(result, vec!["1".to_string()])
     }
 }
