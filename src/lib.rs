@@ -26,6 +26,13 @@ mod tests {
     use crate::{handle_commands, Command};
 
     #[test]
+    fn no_commands() {
+        let result = handle_commands(vec![]);
+
+        assert_eq!(result, Vec::<String>::new())
+    }
+
+    #[test]
     fn quit_command() {
         let result = handle_commands(vec![Command::Quit]);
 
