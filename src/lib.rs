@@ -1,10 +1,17 @@
 use std::collections::HashMap;
 
 #[derive(PartialEq)]
+
+pub enum Value {
+    Primitive(isize),
+    Lazy(String),
+}
+
+#[derive(PartialEq)]
 pub enum Command {
     Quit,
     Print(String),
-    Add(String, isize),
+    Add(String, Value),
     Subtract(String, isize),
     Multiply(String, isize),
 }
@@ -24,10 +31,16 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
 
                 outputs.push(output);
             }
-            Command::Add(register_name, value) => {
-                let current_value = registers.get(register_name).unwrap_or(&0);
-                registers.insert(register_name.clone(), *current_value + value);
-            }
+            Command::Add(register_name, value) => match value {
+                Value::Primitive(number) => {
+                    let current_value = registers.get(register_name).unwrap_or(&0);
+                    registers.insert(register_name.clone(), *current_value + number);
+                }
+                Value::Lazy(register_name) => {
+                    let current_value = registers.get(register_name).unwrap_or(&0);
+                    registers.insert(register_name.clone(), *current_value + 10);
+                }
+            },
             Command::Subtract(register_name, value) => {
                 let current_value = registers.get(register_name).unwrap_or(&0);
                 registers.insert(register_name.clone(), current_value - value);
@@ -44,7 +57,7 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{handle_commands, Command};
+    use crate::{handle_commands, Command, Value};
 
     #[test]
     fn no_commands() {
@@ -73,7 +86,7 @@ mod tests {
     #[test]
     fn a_add_1() {
         let result = handle_commands(vec![
-            Command::Add("A".to_string(), 1),
+            Command::Add("A".to_string(), Value::Primitive(1)),
             Command::Print("A".to_string()),
             Command::Quit,
         ]);
@@ -84,7 +97,7 @@ mod tests {
     #[test]
     fn b_add_5_subtract_2() {
         let result = handle_commands(vec![
-            Command::Add("B".to_string(), 5),
+            Command::Add("B".to_string(), Value::Primitive(5)),
             Command::Subtract("B".to_string(), 2),
             Command::Print("B".to_string()),
             Command::Quit,
@@ -96,8 +109,8 @@ mod tests {
     #[test]
     fn a_add_1_add_2() {
         let result = handle_commands(vec![
-            Command::Add("A".to_string(), 1),
-            Command::Add("A".to_string(), 2),
+            Command::Add("A".to_string(), Value::Primitive(1)),
+            Command::Add("A".to_string(), Value::Primitive(2)),
             Command::Print("A".to_string()),
         ]);
 
@@ -107,7 +120,7 @@ mod tests {
     #[test]
     fn m_add_10_multiply_10() {
         let result = handle_commands(vec![
-            Command::Add("M".to_string(), 10),
+            Command::Add("M".to_string(), Value::Primitive(10)),
             Command::Multiply("M".to_string(), 10),
             Command::Print("M".to_string()),
         ]);
@@ -128,11 +141,23 @@ mod tests {
     #[test]
     fn test_1_add_2_multiply_3() {
         let result = handle_commands(vec![
-            Command::Add("1".to_string(), 2),
+            Command::Add("1".to_string(), Value::Primitive(2)),
             Command::Multiply("1".to_string(), 3),
             Command::Print("1".to_string()),
         ]);
 
         assert_eq!(result, vec!["6".to_string()]);
     }
+
+    // #[test]
+    // fn register_as_value() {
+    //     let result = handle_commands(vec![
+    //         Command::Add("A".to_string(), Value::Primitive(10)),
+    //         Command::Add("B".to_string(), Value::Lazy("A".to_string())),
+    //         Command::Add("B".to_string(), Value::Primitive(1)),
+    //         Command::Print("B".to_string()),
+    //     ]);
+
+    //     assert_eq!(result, vec!["11".to_string()]);
+    // }
 }
