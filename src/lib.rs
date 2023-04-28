@@ -124,4 +124,15 @@ mod tests {
 
         assert_eq!(result, vec!["-1"]);
     }
+
+    #[test]
+    fn test_1_add_2_multiply_3() {
+        let result = handle_commands(vec![
+            Command::Add("1".to_string(), 2),
+            Command::Multiply("1".to_string(), 3),
+            Command::Print("1".to_string()),
+        ]);
+
+        assert_eq!(result, vec!["6".to_string()]);
+    }
 }
