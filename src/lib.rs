@@ -6,6 +6,7 @@ pub enum Command {
     Print(String),
     Add(String, usize),
     Subtract(String, usize),
+    Multiply(String, usize),
 }
 
 pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
@@ -30,6 +31,10 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
             Command::Subtract(register_name, value) => {
                 let current_value = registers.get(register_name).unwrap_or(&0);
                 registers.insert(register_name.clone(), current_value - value);
+            }
+            Command::Multiply(register_name, value) => {
+                let current_value = registers.get(register_name).unwrap_or(&0);
+                registers.insert(register_name.clone(), current_value * value);
             }
         };
     }
@@ -97,5 +102,16 @@ mod tests {
         ]);
 
         assert_eq!(result, vec!["3".to_string()])
+    }
+
+    #[test]
+    fn m_add_10_multiply_10() {
+        let result = handle_commands(vec![
+            Command::Add("M".to_string(), 10),
+            Command::Multiply("M".to_string(), 10),
+            Command::Print("M".to_string()),
+        ]);
+
+        assert_eq!(result, vec!["100".to_string()])
     }
 }
