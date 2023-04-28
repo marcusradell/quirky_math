@@ -4,14 +4,14 @@ use std::collections::HashMap;
 pub enum Command {
     Quit,
     Print(String),
-    Add(String, usize),
-    Subtract(String, usize),
-    Multiply(String, usize),
+    Add(String, isize),
+    Subtract(String, isize),
+    Multiply(String, isize),
 }
 
 pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
     let mut outputs = vec![];
-    let mut registers: HashMap<String, usize> = HashMap::new();
+    let mut registers: HashMap<String, isize> = HashMap::new();
 
     for (index, command) in commands.iter().enumerate() {
         match command {
@@ -113,5 +113,15 @@ mod tests {
         ]);
 
         assert_eq!(result, vec!["100".to_string()])
+    }
+
+    #[test]
+    fn neg_reg_subtract_1() {
+        let result = handle_commands(vec![
+            Command::Subtract("neg_reg".to_string(), 1),
+            Command::Print("neg_reg".to_string()),
+        ]);
+
+        assert_eq!(result, vec!["-1"]);
     }
 }
