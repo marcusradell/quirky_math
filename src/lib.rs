@@ -24,7 +24,8 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
                 outputs.push(output);
             }
             Command::Add(register_name, value) => {
-                registers.insert(register_name.clone(), *value);
+                let current_value = registers.get(register_name).unwrap_or(&0);
+                registers.insert(register_name.clone(), *current_value + value);
             }
             Command::Subtract(register_name, value) => {
                 let current_value = registers.get(register_name).unwrap_or(&0);
@@ -82,6 +83,17 @@ mod tests {
             Command::Subtract("B".to_string(), 2),
             Command::Print("B".to_string()),
             Command::Quit,
+        ]);
+
+        assert_eq!(result, vec!["3".to_string()])
+    }
+
+    #[test]
+    fn a_add_1_add_2() {
+        let result = handle_commands(vec![
+            Command::Add("A".to_string(), 1),
+            Command::Add("A".to_string(), 2),
+            Command::Print("A".to_string()),
         ]);
 
         assert_eq!(result, vec!["3".to_string()])
