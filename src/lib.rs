@@ -5,6 +5,7 @@ pub enum Command {
     Quit,
     Print(String),
     Add(String, usize),
+    Subtract(String, usize),
 }
 
 pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
@@ -24,6 +25,10 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
             }
             Command::Add(register_name, value) => {
                 registers.insert(register_name.clone(), *value);
+            }
+            Command::Subtract(register_name, value) => {
+                let current_value = registers.get(register_name).unwrap_or(&0);
+                registers.insert(register_name.clone(), current_value - value);
             }
         };
     }
@@ -68,5 +73,17 @@ mod tests {
         ]);
 
         assert_eq!(result, vec!["1".to_string()])
+    }
+
+    #[test]
+    fn b_add_5_subtract_2() {
+        let result = handle_commands(vec![
+            Command::Add("B".to_string(), 5),
+            Command::Subtract("B".to_string(), 2),
+            Command::Print("B".to_string()),
+            Command::Quit,
+        ]);
+
+        assert_eq!(result, vec!["3".to_string()])
     }
 }
