@@ -1,19 +1,7 @@
-use std::{cell::Cell, collections::HashMap};
+use std::collections::HashMap;
+use value::Value;
 
-#[derive(PartialEq, Debug, Clone)]
-pub struct Value {
-    pub number: Cell<isize>,
-    pub next: Option<Box<Value>>,
-}
-
-impl Value {
-    pub fn get_total(&self) -> isize {
-        match self.next.as_ref() {
-            Some(value) => value.get_total() + self.number.get(),
-            None => self.number.get(),
-        }
-    }
-}
+pub mod value;
 
 #[derive(PartialEq)]
 pub enum Command {
@@ -23,34 +11,6 @@ pub enum Command {
     LazyAdd(String, Value),
     Subtract(String, isize),
     Multiply(String, isize),
-}
-
-pub fn interior_mutability_lab() {
-    let mut lazy_register: HashMap<String, &Box<Value>> = HashMap::new();
-
-    let mut a_value = Box::new(Value {
-        number: Cell::new(0),
-        next: None,
-    });
-
-    a_value.number.set(a_value.number.get() + 1);
-
-    let b_value = Box::new(Value {
-        next: None,
-        number: Cell::new(5),
-    });
-
-    a_value.next = Some(b_value.clone());
-
-    b_value.number.set(10);
-
-    lazy_register.insert("a".to_string(), &a_value);
-
-    println!("{lazy_register:?}");
-
-    let a_total = a_value.get_total();
-
-    println!("{a_total}");
 }
 
 pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
