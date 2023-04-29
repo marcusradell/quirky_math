@@ -10,6 +10,7 @@ pub enum Command {
     Add(String, isize),
     LazyAdd(String, String),
     Subtract(String, isize),
+    LazySubtract(String, String),
     Multiply(String, isize),
 }
 
@@ -75,12 +76,32 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
                     None => Value::new_wrapped(),
                 };
 
-                target_value.borrow_mut().set_next(source_value);
+                target_value.borrow_mut().set_next(Rc::clone(&source_value));
 
                 registers.insert(target_register_name.clone(), target_value);
+                registers.insert(source_register_name.clone(), source_value);
+            }
+            Command::LazySubtract(target_register_name, source_register_name) => {
+                let target_value = match registers.get(target_register_name) {
+                    Some(value) => Rc::clone(value),
+                    None => Value::new_wrapped(),
+                };
+
+                let source_value = match registers.get(source_register_name) {
+                    Some(value) => Rc::clone(value),
+                    None => Value::new_wrapped(),
+                };
+
+                target_value.borrow_mut().set_next(Rc::clone(&source_value));
+                target_value.borrow_mut().subtract_next.set(true);
+
+                registers.insert(target_register_name.clone(), target_value);
+                registers.insert(source_register_name.clone(), source_value);
             }
         };
     }
+
+    println!("{registers:?}");
 
     outputs
 }
@@ -189,5 +210,21 @@ mod tests {
         ]);
 
         assert_eq!(result, vec!["11".to_string()]);
+    }
+
+    #[test]
+    fn subtract_register() {
+        let result = handle_commands(vec![
+            Command::LazyAdd("result".to_string(), "revenue".to_string()),
+            Command::LazySubtract("result".to_string(), "costs".to_string()),
+            Command::Add("revenue".to_string(), 200),
+            Command::LazyAdd("costs".to_string(), "salaries".to_string()),
+            Command::Add("salaries".to_string(), 20),
+            Command::Multiply("salaries".to_string(), 5),
+            Command::Add("costs".to_string(), 10),
+            Command::Print("result".to_string()),
+        ]);
+
+        assert_eq!(result, vec!["90".to_string()]);
     }
 }

@@ -8,6 +8,7 @@ use std::{
 pub struct Value {
     pub number: Cell<isize>,
     next: Option<Rc<RefCell<Value>>>,
+    pub subtract_next: Cell<bool>,
 }
 
 impl Value {
@@ -15,6 +16,7 @@ impl Value {
         Rc::new(RefCell::new(Self {
             next: None,
             number: Cell::new(0),
+            subtract_next: Cell::new(false),
         }))
     }
 
@@ -28,7 +30,10 @@ impl Value {
 
     pub fn get_total(&self) -> isize {
         match self.next.as_ref() {
-            Some(value) => value.borrow_mut().get_total() + self.number.get(),
+            Some(value) => match self.subtract_next.get() {
+                true => self.number.get() - value.borrow_mut().get_total(),
+                false => value.borrow_mut().get_total() + self.number.get(),
+            },
             None => self.number.get(),
         }
     }
