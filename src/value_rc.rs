@@ -6,8 +6,8 @@ use std::{
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Value {
-    pub number: Cell<isize>,
-    pub next: Option<Rc<RefCell<Value>>>,
+    number: Cell<isize>,
+    next: Option<Rc<RefCell<Value>>>,
 }
 
 impl Value {
@@ -20,6 +20,10 @@ impl Value {
 
     pub fn set_number(&self, number: isize) {
         self.number.set(number);
+    }
+
+    pub fn set_next(&mut self, next: Rc<RefCell<Value>>) {
+        self.next = Some(next);
     }
 
     pub fn get_total(&self) -> isize {
@@ -43,7 +47,7 @@ pub fn interior_mutability_lab() {
     let b_value = Value::new_wrapped();
     b_value.borrow().set_number(5);
 
-    a_value.borrow_mut().next = Some(Rc::clone(&b_value));
+    a_value.borrow_mut().set_next(Rc::clone(&b_value));
 
     lazy_register.insert("a".to_string(), Rc::clone(&a_value));
 
