@@ -1,6 +1,6 @@
 // use quirky_math::{handle_commands, value::interior_mutability_lab, Command};
 
-use quirky_math::value::interior_mutability_lab;
+use quirky_math::value_rc::interior_mutability_lab;
 
 fn main() {
     // let commands_536 = vec![
