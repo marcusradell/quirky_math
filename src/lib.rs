@@ -35,7 +35,7 @@ pub fn interior_mutability_lab() {
 
     a_value.number.set(a_value.number.get() + 1);
 
-    let mut b_value = Box::new(Value {
+    let b_value = Box::new(Value {
         next: None,
         number: Cell::new(10),
     });
@@ -78,7 +78,7 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
                 let current_value = registers.get(register_name).unwrap_or(&0);
                 registers.insert(register_name.clone(), current_value * value);
             }
-            Command::LazyAdd(target_register_name, source_register_name) => {
+            Command::LazyAdd(target_register_name, _source_register_name) => {
                 let current_value = registers.get(target_register_name).unwrap_or(&0);
                 registers.insert(target_register_name.clone(), current_value + 10);
             }
