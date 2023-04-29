@@ -11,6 +11,7 @@ pub enum Command {
     Quit,
     Print(String),
     Add(String, isize),
+    LazyAdd(String, Value),
     Subtract(String, isize),
     Multiply(String, isize),
 }
@@ -41,6 +42,10 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
             Command::Multiply(register_name, value) => {
                 let current_value = registers.get(register_name).unwrap_or(&0);
                 registers.insert(register_name.clone(), current_value * value);
+            }
+            Command::LazyAdd(target_register_name, source_register_name) => {
+                let current_value = registers.get(target_register_name).unwrap_or(&0);
+                registers.insert(target_register_name.clone(), current_value + 10);
             }
         };
     }
