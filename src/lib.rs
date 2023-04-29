@@ -7,16 +7,10 @@ pub struct Value {
 }
 
 #[derive(PartialEq)]
-
-pub enum ValueEnum {
-    Primitive(isize),
-}
-
-#[derive(PartialEq)]
 pub enum Command {
     Quit,
     Print(String),
-    Add(String, ValueEnum),
+    Add(String, isize),
     Subtract(String, isize),
     Multiply(String, isize),
 }
@@ -36,12 +30,10 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
 
                 outputs.push(output);
             }
-            Command::Add(register_name, value) => match value {
-                ValueEnum::Primitive(number) => {
-                    let current_value = registers.get(register_name).unwrap_or(&0);
-                    registers.insert(register_name.clone(), *current_value + number);
-                }
-            },
+            Command::Add(register_name, value) => {
+                let current_value = registers.get(register_name).unwrap_or(&0);
+                registers.insert(register_name.clone(), *current_value + value);
+            }
             Command::Subtract(register_name, value) => {
                 let current_value = registers.get(register_name).unwrap_or(&0);
                 registers.insert(register_name.clone(), current_value - value);
@@ -58,7 +50,7 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{handle_commands, Command, ValueEnum};
+    use crate::{handle_commands, Command};
 
     #[test]
     fn no_commands() {
@@ -87,7 +79,7 @@ mod tests {
     #[test]
     fn a_add_1() {
         let result = handle_commands(vec![
-            Command::Add("A".to_string(), ValueEnum::Primitive(1)),
+            Command::Add("A".to_string(), 1),
             Command::Print("A".to_string()),
             Command::Quit,
         ]);
@@ -98,7 +90,7 @@ mod tests {
     #[test]
     fn b_add_5_subtract_2() {
         let result = handle_commands(vec![
-            Command::Add("B".to_string(), ValueEnum::Primitive(5)),
+            Command::Add("B".to_string(), 5),
             Command::Subtract("B".to_string(), 2),
             Command::Print("B".to_string()),
             Command::Quit,
@@ -110,8 +102,8 @@ mod tests {
     #[test]
     fn a_add_1_add_2() {
         let result = handle_commands(vec![
-            Command::Add("A".to_string(), ValueEnum::Primitive(1)),
-            Command::Add("A".to_string(), ValueEnum::Primitive(2)),
+            Command::Add("A".to_string(), 1),
+            Command::Add("A".to_string(), 2),
             Command::Print("A".to_string()),
         ]);
 
@@ -121,7 +113,7 @@ mod tests {
     #[test]
     fn m_add_10_multiply_10() {
         let result = handle_commands(vec![
-            Command::Add("M".to_string(), ValueEnum::Primitive(10)),
+            Command::Add("M".to_string(), 10),
             Command::Multiply("M".to_string(), 10),
             Command::Print("M".to_string()),
         ]);
@@ -142,7 +134,7 @@ mod tests {
     #[test]
     fn test_1_add_2_multiply_3() {
         let result = handle_commands(vec![
-            Command::Add("1".to_string(), ValueEnum::Primitive(2)),
+            Command::Add("1".to_string(), 2),
             Command::Multiply("1".to_string(), 3),
             Command::Print("1".to_string()),
         ]);
