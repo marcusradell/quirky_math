@@ -1,13 +1,18 @@
-use std::{
-    borrow::BorrowMut,
-    cell::{Cell, RefCell},
-    collections::HashMap,
-};
+use std::{cell::Cell, collections::HashMap};
 
 #[derive(PartialEq, Debug)]
 pub struct Value {
     pub number: Cell<isize>,
-    pub next: RefCell<Option<Box<Value>>>,
+    pub next: Option<Box<Value>>,
+}
+
+impl Value {
+    pub fn get_total(&self) -> isize {
+        match self.next.as_ref() {
+            Some(value) => value.get_total() + self.number.get(),
+            None => self.number.get(),
+        }
+    }
 }
 
 #[derive(PartialEq)]
@@ -21,25 +26,29 @@ pub enum Command {
 }
 
 pub fn interior_mutability_lab() {
-    let mut lazy_register: HashMap<String, &Value> = HashMap::new();
+    let mut lazy_register: HashMap<String, &Box<Value>> = HashMap::new();
 
-    let a_value = Value {
+    let mut a_value = Box::new(Value {
         number: Cell::new(0),
-        next: RefCell::new(None),
-    };
-
-    lazy_register.insert("a".to_string(), &a_value);
+        next: None,
+    });
 
     a_value.number.set(a_value.number.get() + 1);
 
-    a_value.next.replace_with(|_| {
-        Some(Box::new(Value {
-            next: RefCell::new(None),
-            number: Cell::new(10),
-        }))
+    let mut b_value = Box::new(Value {
+        next: None,
+        number: Cell::new(10),
     });
 
+    a_value.next = Some(b_value);
+
+    lazy_register.insert("a".to_string(), &a_value);
+
     println!("{lazy_register:?}");
+
+    let a_total = a_value.get_total();
+
+    println!("{a_total}");
 }
 
 pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
