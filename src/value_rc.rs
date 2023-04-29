@@ -11,6 +11,17 @@ pub struct Value {
 }
 
 impl Value {
+    pub fn new_wrapped() -> Rc<RefCell<Self>> {
+        Rc::new(RefCell::new(Self {
+            next: None,
+            number: Cell::new(0),
+        }))
+    }
+
+    pub fn set_number(&self, number: isize) {
+        self.number.set(number);
+    }
+
     pub fn get_total(&self) -> isize {
         match self.next.as_ref() {
             Some(value) => value.borrow_mut().get_total() + self.number.get(),
@@ -22,20 +33,15 @@ impl Value {
 pub fn interior_mutability_lab() {
     let mut lazy_register: HashMap<String, Rc<RefCell<Value>>> = HashMap::new();
 
-    let a_value = Rc::new(RefCell::new(Value {
-        number: Cell::new(0),
-        next: None,
-    }));
+    let a_value = Value::new_wrapped();
 
     a_value
         .borrow()
         .number
         .set(a_value.borrow().number.get() + 1);
 
-    let b_value = Rc::new(RefCell::new(Value {
-        next: None,
-        number: Cell::new(5),
-    }));
+    let b_value = Value::new_wrapped();
+    b_value.borrow().set_number(5);
 
     a_value.borrow_mut().next = Some(Rc::clone(&b_value));
 
