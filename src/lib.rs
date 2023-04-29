@@ -10,7 +10,6 @@ pub struct Value {
 
 pub enum ValueEnum {
     Primitive(isize),
-    Lazy(String),
 }
 
 #[derive(PartialEq)]
@@ -41,10 +40,6 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
                 ValueEnum::Primitive(number) => {
                     let current_value = registers.get(register_name).unwrap_or(&0);
                     registers.insert(register_name.clone(), *current_value + number);
-                }
-                ValueEnum::Lazy(register_name) => {
-                    let current_value = registers.get(register_name).unwrap_or(&0);
-                    registers.insert(register_name.clone(), *current_value + 10);
                 }
             },
             Command::Subtract(register_name, value) => {
