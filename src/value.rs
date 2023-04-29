@@ -6,7 +6,7 @@ use std::{
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Value {
-    number: Cell<isize>,
+    pub number: Cell<isize>,
     next: Option<Rc<RefCell<Value>>>,
 }
 

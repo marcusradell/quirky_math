@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{borrow::Borrow, cell::RefCell, collections::HashMap, rc::Rc};
 use value::Value;
 
 pub mod value;
@@ -8,14 +8,14 @@ pub enum Command {
     Quit,
     Print(String),
     Add(String, isize),
-    LazyAdd(String, Value),
+    LazyAdd(String, String),
     Subtract(String, isize),
     Multiply(String, isize),
 }
 
 pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
     let mut outputs = vec![];
-    let mut registers: HashMap<String, isize> = HashMap::new();
+    let mut registers: HashMap<String, Rc<RefCell<Value>>> = HashMap::new();
 
     for (index, command) in commands.iter().enumerate() {
         match command {
@@ -23,26 +23,61 @@ pub fn handle_commands(commands: Vec<Command>) -> Vec<String> {
             Command::Print(register_name) => {
                 let output = registers
                 .get(register_name)
-                .map(|value| value.to_string())
+                .map(|value| value.borrow_mut().get_total().to_string())
                 .unwrap_or_else(|| format!("Register {register_name} was uninitialized when command PRINT with index {index} was executed."));
 
                 outputs.push(output);
             }
-            Command::Add(register_name, value) => {
-                let current_value = registers.get(register_name).unwrap_or(&0);
-                registers.insert(register_name.clone(), *current_value + value);
+            Command::Add(register_name, number) => {
+                let value = match registers.get(register_name) {
+                    Some(value) => Rc::clone(value),
+                    None => Value::new_wrapped(),
+                };
+
+                let current_number = value.borrow_mut().number.get();
+
+                value.borrow_mut().set_number(current_number + number);
+
+                registers.insert(register_name.clone(), value);
             }
-            Command::Subtract(register_name, value) => {
-                let current_value = registers.get(register_name).unwrap_or(&0);
-                registers.insert(register_name.clone(), current_value - value);
+            Command::Subtract(register_name, number) => {
+                let value = match registers.get(register_name) {
+                    Some(value) => Rc::clone(value),
+                    None => Value::new_wrapped(),
+                };
+
+                let current_number = value.borrow_mut().number.get();
+
+                value.borrow_mut().set_number(current_number - number);
+
+                registers.insert(register_name.clone(), value);
             }
-            Command::Multiply(register_name, value) => {
-                let current_value = registers.get(register_name).unwrap_or(&0);
-                registers.insert(register_name.clone(), current_value * value);
+            Command::Multiply(register_name, number) => {
+                let value = match registers.get(register_name) {
+                    Some(value) => Rc::clone(value),
+                    None => Value::new_wrapped(),
+                };
+
+                let current_number = value.borrow_mut().number.get();
+
+                value.borrow_mut().set_number(current_number * number);
+
+                registers.insert(register_name.clone(), value);
             }
-            Command::LazyAdd(target_register_name, _source_register_name) => {
-                let current_value = registers.get(target_register_name).unwrap_or(&0);
-                registers.insert(target_register_name.clone(), current_value + 10);
+            Command::LazyAdd(target_register_name, source_register_name) => {
+                let target_value = match registers.get(target_register_name) {
+                    Some(value) => Rc::clone(value),
+                    None => Value::new_wrapped(),
+                };
+
+                let source_value = match registers.get(source_register_name) {
+                    Some(value) => Rc::clone(value),
+                    None => Value::new_wrapped(),
+                };
+
+                target_value.borrow_mut().set_next(source_value);
+
+                registers.insert(target_register_name.clone(), target_value);
             }
         };
     }
@@ -144,15 +179,15 @@ mod tests {
         assert_eq!(result, vec!["6".to_string()]);
     }
 
-    // #[test]
-    // fn register_as_value() {
-    //     let result = handle_commands(vec![
-    //         Command::Add("A".to_string(), Value::Primitive(10)),
-    //         Command::Add("B".to_string(), Value::Lazy("A".to_string())),
-    //         Command::Add("B".to_string(), Value::Primitive(1)),
-    //         Command::Print("B".to_string()),
-    //     ]);
+    #[test]
+    fn register_as_value() {
+        let result = handle_commands(vec![
+            Command::Add("A".to_string(), 10),
+            Command::LazyAdd("B".to_string(), "A".to_string()),
+            Command::Add("B".to_string(), 1),
+            Command::Print("B".to_string()),
+        ]);
 
-    //     assert_eq!(result, vec!["11".to_string()]);
-    // }
+        assert_eq!(result, vec!["11".to_string()]);
+    }
 }
