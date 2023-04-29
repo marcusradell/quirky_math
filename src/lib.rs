@@ -1,9 +1,13 @@
-use std::{borrow::BorrowMut, cell::Cell, collections::HashMap};
+use std::{
+    borrow::BorrowMut,
+    cell::{Cell, RefCell},
+    collections::HashMap,
+};
 
 #[derive(PartialEq, Debug)]
 pub struct Value {
     pub number: Cell<isize>,
-    pub next: Option<Box<Value>>,
+    pub next: RefCell<Option<Box<Value>>>,
 }
 
 #[derive(PartialEq)]
@@ -19,14 +23,21 @@ pub enum Command {
 pub fn interior_mutability_lab() {
     let mut lazy_register: HashMap<String, &Value> = HashMap::new();
 
-    let mut a_value = Value {
+    let a_value = Value {
         number: Cell::new(0),
-        next: None,
+        next: RefCell::new(None),
     };
 
     lazy_register.insert("a".to_string(), &a_value);
 
     a_value.number.set(a_value.number.get() + 1);
+
+    a_value.next.replace_with(|_| {
+        Some(Box::new(Value {
+            next: RefCell::new(None),
+            number: Cell::new(10),
+        }))
+    });
 
     println!("{lazy_register:?}");
 }
