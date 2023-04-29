@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use value::Value;
 
 pub mod value;
-pub mod value_rc;
 
 #[derive(PartialEq)]
 pub enum Command {
