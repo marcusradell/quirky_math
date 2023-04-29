@@ -1,4 +1,4 @@
-use quirky_math::{handle_commands, Command};
+use quirky_math::{handle_commands, interior_mutability_lab, Command};
 
 fn main() {
     let commands_536 = vec![
@@ -18,4 +18,6 @@ fn main() {
     for output in outputs {
         println!("{output}");
     }
+
+    interior_mutability_lab()
 }
