@@ -40,7 +40,7 @@ pub fn interior_mutability_lab() {
     println!("{lazy_register:?}");
 
     // Total should be 10 + 1, but ends up being 6 + 1 due to the clone() call.
-    let a_total = a_value.get_total();
+    let a_total = lazy_register.get("a").unwrap().get_total();
 
     println!("{a_total}");
 }
