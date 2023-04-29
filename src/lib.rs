@@ -1,6 +1,6 @@
 use std::{cell::Cell, collections::HashMap};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Value {
     pub number: Cell<isize>,
     pub next: Option<Box<Value>>,
@@ -37,10 +37,12 @@ pub fn interior_mutability_lab() {
 
     let b_value = Box::new(Value {
         next: None,
-        number: Cell::new(10),
+        number: Cell::new(5),
     });
 
-    a_value.next = Some(b_value);
+    a_value.next = Some(b_value.clone());
+
+    b_value.number.set(10);
 
     lazy_register.insert("a".to_string(), &a_value);
 
